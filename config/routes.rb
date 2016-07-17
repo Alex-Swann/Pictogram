@@ -7,11 +7,7 @@ Rails.application.routes.draw do
   resources :passwords, controller: "clearance/passwords", only: [:create, :new]
   resource :session, controller: "clearance/sessions", only: [:create]
 
-  resources :users, controller: "clearance/users", only: [:create] do
-    resource :password,
-      controller: "clearance/passwords",
-      only: [:create, :edit, :update]
-  end
+  resources :users
 
 
   get "/sign_in" => "clearance/sessions#new", as: "sign_in"
