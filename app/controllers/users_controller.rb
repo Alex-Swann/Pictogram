@@ -1,75 +1,68 @@
-class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+class UsersController < Clearance::UsersController
+  if respond_to?(:before_action)
+     before_action :redirect_signed_in_users, only: [:create, :new]
+     skip_before_action :require_login, only: [:create, :new], raise: false
+     skip_before_action :authorize, only: [:create, :new], raise: false
+   else
+     before_filter :redirect_signed_in_users, only: [:create, :new]
+     skip_before_filter :require_login, only: [:create, :new], raise: false
+     skip_before_filter :authorize, only: [:create, :new], raise: false
+   end
 
-  # GET /users
-  # GET /users.json
-  def index
-    @users = User.all
-  end
+   def new
+     @user = user_from_params
+     render template: "users/new"
+   end
 
-  # GET /users/1
-  # GET /users/1.json
-  def show
-    redirect_to '/'
-  end
+   def create
+     @user = user_from_params
 
-  # GET /users/new
-  def new
-    @user = User.new
-  end
+     if @user.save
+       sign_in @user
+       redirect_back_or url_after_create
+     else
+       render template: "users/new"
+     end
+   end
 
-  # GET /users/1/edit
-  def edit
-  end
+   private
 
-  # POST /users
-  # POST /users.json
-  def create
-    @user = User.new(user_params)
+   def avoid_sign_in
+     warn "[DEPRECATION] Clearance's `avoid_sign_in` before_filter is " +
+       "deprecated. Use `redirect_signed_in_users` instead. " +
+       "Be sure to update any instances of `skip_before_filter :avoid_sign_in`" +
+       " or `skip_before_action :avoid_sign_in` as well"
+     redirect_signed_in_users
+   end
 
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+   def redirect_signed_in_users
+     if signed_in?
+       redirect_to Clearance.configuration.redirect_url
+     end
+   end
 
-  # PATCH/PUT /users/1
-  # PATCH/PUT /users/1.json
-  def update
-    respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.json { render :show, status: :ok, location: @user }
-      else
-        format.html { render :edit }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+   def url_after_create
+     Clearance.configuration.redirect_url
+   end
 
-  # DELETE /users/1
-  # DELETE /users/1.json
-  def destroy
-    @user.destroy
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
+   def user_from_params
+     first_name = user_params.delete(:first_name)
+     last_name = user_params.delete(:last_name)
+     user_name = user_params.delete(:user_name)
+     email = user_params.delete(:email)
+     password = user_params.delete(:password)
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
-    end
+     Clearance.configuration.user_model.new(user_params).tap do |user|
+       user.first_name = first_name
+       user.last_name = last_name
+       user.user_name = user_name
+       user.email = email
+       user.password = password
+     end
+   end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def user_params
-      params.require(:user).permit(:first_name, :last_name, :user_name, :email, :password)
-    end
+   def user_params
+     params.require(:user).permit(:first_name, :last_name, :user_name, :email, :password)
+   end
+
 end
