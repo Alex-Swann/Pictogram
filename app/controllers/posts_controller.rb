@@ -1,4 +1,10 @@
 class PostsController < ApplicationController
+  load_and_authorize_resource
+  skip_authorize_resource :only => :index
+  rescue_from CanCan::AccessDenied do |exception|
+    redirect_to root_url, :alert => exception.message
+  end
+
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
   # GET /posts
