@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :posts
 
   resources :passwords, controller: "clearance/passwords", only: [:create, :new]
-  resource :session, controller: "clearance/sessions", only: [:create]
+  resource :session, controller: "sessions", only: [:create]
 
   resources :users, controller: "users", only: [:create] do
     resource :password,
@@ -15,9 +15,9 @@ Rails.application.routes.draw do
 
 
 
-  get "/sign_in" => "clearance/sessions#new", as: "sign_in"
-  delete "/sign_out" => "clearance/sessions#destroy", as: "sign_out"
-  get "/sign_up" => "clearance/users#new", as: "sign_up"
+  get "/sessions/new" => "clearance/sessions#new", as: "sign_in"
+  delete "/sessions" => "clearance/sessions#destroy", as: "sign_out"
+  get "/users/new" => "clearance/users#new", as: "sign_up"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
