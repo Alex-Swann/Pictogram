@@ -6,6 +6,7 @@ class Ability
     #   user ||= User.new # guest user (not logged in)
     def initialize(user)
       if user
+
         alias_action :create, :read, :update, :destroy, :to => :crud
 
         can :crud, Post

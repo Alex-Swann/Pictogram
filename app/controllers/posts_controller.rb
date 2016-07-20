@@ -2,9 +2,11 @@ class PostsController < ApplicationController
   if respond_to?(:before_action)
     before_action :new_post, only: [:create]
     before_action :set_post, only: [:show, :edit, :update, :destroy]
+    before_action :require_permission, only: [:edit, :update, :destroy]
   else
     before_filter :new_post, only: [:create]
     before_filter :set_post, only: [:show, :edit, :update, :destroy]
+    before_filter :require_permission, only: [:edit, :update, :destroy]
   end
 
   load_and_authorize_resource
@@ -81,6 +83,12 @@ class PostsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_post
       @post = Post.find(params[:id])
+    end
+
+    def require_permission
+      if current_user.id != Post.find(params[:id]).user_id
+        redirect_to root_path
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
