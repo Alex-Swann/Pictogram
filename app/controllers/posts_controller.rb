@@ -1,11 +1,18 @@
 class PostsController < ApplicationController
+  if respond_to?(:before_action)
+    before_action :new_post, only: [:create]
+    before_action :set_post, only: [:show, :edit, :update, :destroy]
+  else
+    before_filter :new_post, only: [:create]
+    before_filter :set_post, only: [:show, :edit, :update, :destroy]
+  end
+
   load_and_authorize_resource
   skip_authorize_resource :only => :index
+
   rescue_from CanCan::AccessDenied do |exception|
     redirect_to root_url, :alert => exception.message
   end
-
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
 
   # GET /posts
   # GET /posts.json
@@ -20,7 +27,6 @@ class PostsController < ApplicationController
 
   # GET /posts/new
   def new
-    @post = Post.new
   end
 
   # GET /posts/1/edit
@@ -30,8 +36,6 @@ class PostsController < ApplicationController
   # POST /posts
   # POST /posts.json
   def create
-    @post = Post.new(post_params)
-
     respond_to do |format|
       if @post.save
         format.html { redirect_to @post, notice: 'Post was successfully created.' }
@@ -68,6 +72,10 @@ class PostsController < ApplicationController
   end
 
   private
+
+    def new_post
+      @post = Post.new(post_params)
+    end
     # Use callbacks to share common setup or constraints between actions.
     def set_post
       @post = Post.find(params[:id])
