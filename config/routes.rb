@@ -15,9 +15,9 @@ Rails.application.routes.draw do
 
 
 
-  get "/sessions/new" => "clearance/sessions#new", as: "sign_in"
-  delete "/sessions" => "clearance/sessions#destroy", as: "sign_out"
-  get "/users/new" => "clearance/users#new", as: "sign_up"
+  get "/sessions/new" => "sessions#new", as: "sign_in"
+  delete "/sessions" => "sessions#destroy", as: "sign_out"
+  get "/users/new" => "users#new", as: "sign_up"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
