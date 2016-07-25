@@ -37,8 +37,6 @@ So that I can see which pictures are my favourites
 I would like to be able to endorse them
 ```
 
-
-
 #### Details
 Your challenge is to build Instagram using Rails. You'll need **users** who can post **pictures**, write **comments** on pictures and **like** a picture. Style it like Instagram's website (or more awesome).
 
